@@ -1,0 +1,19 @@
+[project]
+name = "erp-lakehouse-databricks"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+authors = [
+    { name = "Natnael", email = "natnaelatnafu25@gmail.com" }
+]
+requires-python = ">=3.11"
+dependencies = [
+    "faker>=40.44.0",
+]
+
+[project.scripts]
+erp-lakehouse-databricks = "erp_lakehouse_databricks:main"
+
+[build-system]
+requires = ["uv_build>=0.12.7,<0.13.0"]
+build-backend = "uv_build"
