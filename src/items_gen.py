@@ -6,7 +6,7 @@ from pathlib import Path
 
 """Generate Company B's items.csv with planted data quality problems.
 
-Planted problems (see docs/company_b_answer_key.md):
+Planted problems (see README.md):
   #2 Duplicate part number: one part_no appears twice with different prices
   #5 Messy units: some uom values are 'ea' or 'Each' instead of 'EA'
   #6 Same product, different number: 3 Company B parts are really

@@ -19,6 +19,7 @@ The extract runs on my laptop because Databricks Free Edition blocks most outsid
 
 ## Raw Volume Layout
 ```
+
 /Volumes/workspace/erp_lakehouse/raw/
   cronus_usa_inc/<extract date>/   customers, items, salesOrders, salesInvoices (JSON)
   company_b/
@@ -26,6 +27,11 @@ The extract runs on my laptop because Databricks Free Edition blocks most outsid
     items.csv
     2026-10-26/ to 2026-10-30/    orders.csv, order_lines.csv
 ```
+NOTE: Business Central files are saved in data/business_central on dev machine. In the volume, that folder is named cronus_usa_inc, after the demo company.
+## How the Company B Data Is Generated
+- `faker_customers_gen.py` uses Faker to make 40 customers, plus Alpine Ski House as B-9000.
+- `items_gen.py` builds 25 items and borrows 3 real products from the Business Central extract.
+- `orders_gen.py` reads the customers and items, then writes 5 days of orders and order lines.
 
 ## Planted Data Problems
 Company B's data has problems on purpose, so I can find and fix them in silver.
@@ -44,14 +50,20 @@ Company B's data has problems on purpose, so I can find and fix them in silver.
 
 ## Repo Structure
 ```
-api_test/api_test.py         Business Central extract
+dynamics365_bc_extract/dynamics365_bc_extract.py         Business Central extract For CRONUS USA, Inc
 src/faker_customers_gen.py   Company B customers
 src/items_gen.py             Company B items
 src/orders_gen.py            Company B orders and order lines
 data/                        Output files (gitignored, not committed)
 ```
 
+## What I Learned
+- My customer script first used a relative path, so it only worked from the repo root and crashed on a fresh clone because the folder didn't exist. I switched it to a path based on the script's location and had it create the folder before saving.
+- I moved all of Company B's files into one `company_b` folder, so each source lives in its own place locally and in the volume.
+
 ## Next Steps
 1. Build bronze: one table per file type, loaded as-is with source file and load time
 2. Build silver: fix dates, units and duplicates, and match customers and products
 3. Add load checks and a dashboard
+
+

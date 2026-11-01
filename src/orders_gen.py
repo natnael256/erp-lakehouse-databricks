@@ -1,5 +1,5 @@
 """
-Planted problems (see docs/company_b_answer_key.md):
+Planted problems (see README.md):
   #1 Mixed date formats: some order_dt values are MM/DD/YYYY, others YYYY-MM-DD
   #3 Missing customer IDs: a few orders have a blank cust_id
   #4 Orphan lines: a few order lines point to an order_id that doesn't exist
