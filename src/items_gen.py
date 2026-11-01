@@ -17,7 +17,7 @@ random.seed(42)  # same seed every run -> same file every run
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = REPO_ROOT / "data"
-OUT_FILE = DATA_DIR / "items.csv"
+OUT_FILE = DATA_DIR / "company_b" / "items.csv"
 
 NUM_CLEAN_ITEMS = 25
 
@@ -141,8 +141,8 @@ def add_bc_matches(items, bc_items):
 
 
 def save(items):
-    """Write all rows to data/items.csv."""
-    DATA_DIR.mkdir(parents=True, exist_ok=True)
+    #  write all row to data/company_b/item.csv
+    OUT_FILE.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT_FILE, "w", newline="", encoding="utf-8") as f:
         writer = csv.DictWriter(f, fieldnames=["part_no", "part_desc", "uom", "list_price"])
         writer.writeheader()

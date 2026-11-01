@@ -6,7 +6,7 @@ fake = Faker()
 Faker.seed(2)
 
 
-with open ("data/customers.csv", "w", newline="") as file:
+with open ("data/company_b/customers.csv", "w", newline="") as file:
 
     writer = csv.writer(file)
     writer.writerow(["cust_id", "cust_nm", "city", "state", "email"])
