@@ -6,7 +6,7 @@ I'm combining ERP data from two companies in one Databricks lakehouse. Company A
 - [x] Business Central extract (customers, items, sales orders, sales invoices)
 - [x] Company B customers, items, and 5 days of orders with planted data problems
 - [x] Raw files uploaded to a Databricks volume
-- [ ] Bronze layer
+- [x] Bronze layer
 - [ ] Silver, quality checks, dashboard
 
 ## How It Works
@@ -19,7 +19,6 @@ The extract runs on my laptop because Databricks Free Edition blocks most outsid
 
 ## Raw Volume Layout
 ```
-
 /Volumes/workspace/erp_lakehouse/raw/
   cronus_usa_inc/<extract date>/   customers, items, salesOrders, salesInvoices (JSON)
   company_b/
@@ -27,7 +26,8 @@ The extract runs on my laptop because Databricks Free Edition blocks most outsid
     items.csv
     2026-10-26/ to 2026-10-30/    orders.csv, order_lines.csv
 ```
-NOTE: Business Central files are saved in data/business_central on dev machine. In the volume, that folder is named cronus_usa_inc, after the demo company.
+Note: locally, the Business Central files are saved in `data/business_central`. In the volume, that folder is named `cronus_usa_inc`, after the demo company.
+
 ## How the Company B Data Is Generated
 - `faker_customers_gen.py` uses Faker to make 40 customers, plus Alpine Ski House as B-9000.
 - `items_gen.py` builds 25 items and borrows 3 real products from the Business Central extract.
@@ -48,22 +48,40 @@ Company B's data has problems on purpose, so I can find and fix them in silver.
 | Short file: only a third of the orders on Oct 28 | orders.csv |
 | Missing file: no orders on Oct 29 | orders.csv |
 
+## Bronze Layer
+`01_bronze_ingest` loads every raw file into a Delta table as-is, in `workspace.erp_lakehouse`:
+
+| Business Central | Company B |
+|---|---|
+| bronze_bc_customers | bronze_b_customers |
+| bronze_bc_items | bronze_b_items |
+| bronze_bc_sales_orders | bronze_b_orders |
+| bronze_bc_sales_invoices | bronze_b_order_lines |
+
+- Business Central JSON is read with `multiLine`, since each file is one array.
+- Company B CSVs are read as text (`inferSchema` off), so the messy values come through unchanged.
+- Every table has `source_file` and `ingested_at`. Company B orders and order lines also have `file_date`, taken from the folder name.
+
+Orders by `file_date` show the planted problems landed: Oct 28 is short, and Oct 29 is missing.
+
+![Bronze tables](docs/images/bronze_tables.png)
+
 ## Repo Structure
 ```
-dynamics365_bc_extract/dynamics365_bc_extract.py         Business Central extract For CRONUS USA, Inc
-src/faker_customers_gen.py   Company B customers
-src/items_gen.py             Company B items
-src/orders_gen.py            Company B orders and order lines
-data/                        Output files (gitignored, not committed)
+dynamics365_bc_extract/dynamics365_bc_extract.py   Business Central extract (CRONUS USA, Inc.)
+src/faker_customers_gen.py                         Company B customers
+src/items_gen.py                                   Company B items
+src/orders_gen.py                                  Company B orders and order lines
+databricks_notebook/01_bronze_ingest               Bronze tables
+data/                                              Output files (gitignored, not committed)
 ```
 
 ## What I Learned
 - My customer script first used a relative path, so it only worked from the repo root and crashed on a fresh clone because the folder didn't exist. I switched it to a path based on the script's location and had it create the folder before saving.
 - I moved all of Company B's files into one `company_b` folder, so each source lives in its own place locally and in the volume.
+- Reading the CSVs with `inferSchema` off keeps bronze faithful to the source. Type guessing would have hidden the mixed date formats.
 
 ## Next Steps
-1. Build bronze: one table per file type, loaded as-is with source file and load time
+1. Add load checks: missing file, short file, blank customer IDs, orphan lines
 2. Build silver: fix dates, units and duplicates, and match customers and products
-3. Add load checks and a dashboard
-
-
+3. Add a dashboard
