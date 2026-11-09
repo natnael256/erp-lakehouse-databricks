@@ -33,6 +33,7 @@ Note: locally, the Business Central files are saved in `data/business_central`. 
 - `items_gen.py` builds 25 items and borrows 3 real products from the Business Central extract.
 - `orders_gen.py` reads the customers and items, then writes 5 days of orders and order lines.
 
+
 ## Planted Data Problems
 Company B's data has problems on purpose, so I can find and fix them in silver.
 
@@ -73,6 +74,7 @@ src/faker_customers_gen.py                         Company B customers
 src/items_gen.py                                   Company B items
 src/orders_gen.py                                  Company B orders and order lines
 databricks_notebook/01_bronze_ingest               Bronze tables
+databricks_notebook/02_silver_clean                Silver tables             
 data/                                              Output files (gitignored, not committed)
 ```
 
@@ -80,8 +82,10 @@ data/                                              Output files (gitignored, not
 - My customer script first used a relative path, so it only worked from the repo root and crashed on a fresh clone because the folder didn't exist. I switched it to a path based on the script's location and had it create the folder before saving.
 - I moved all of Company B's files into one `company_b` folder, so each source lives in its own place locally and in the volume.
 - Reading the CSVs with `inferSchema` off keeps bronze faithful to the source. Type guessing would have hidden the mixed date formats.
+- Casting with `try_cast` and `try_to_date` returns null for a bad value instead of crashing the notebook, so I can catch bad rows and set them aside.
 
 ## Next Steps
-1. Add load checks: missing file, short file, blank customer IDs, orphan lines
-2. Build silver: fix dates, units and duplicates, and match customers and products
-3. Add a dashboard
+1. Finish silver: orders, order lines, and quarantine tables
+2. Add crosswalk tables to match customers and products across the two companies
+3. Add a daily load check for missing and short files
+4. Build gold and a dashboard
